@@ -19,6 +19,12 @@ The trial is accepted with HTTP and no TLS requirement while it remains on the t
 local network. Git-controlled Markdown, images, and diagram sources remain authoritative;
 Knowledge Base articles are readable derived copies.
 
+The later adoption-readiness follow-up closed the native MCP State bypass with a small
+project-scoped YouTrack workflow, added and proved the `Agent Readiness` reset, and
+validated Git-first parent/child article publication with divergence detection. See
+[adoption-readiness-results.md](adoption-readiness-results.md). This follow-up did not
+replace or rerun the accepted backup and timing evidence.
+
 ## Environment delivered
 
 | Item | Result |
@@ -69,9 +75,12 @@ All seven allowed edges worked through the workflow event interface. The unliste
 `TO DO -> DONE` transition returned HTTP 400 and left the issue in `TO DO`. The same
 allowed and denied behaviour remained present after backup restoration.
 
-One material product limitation was found: native MCP `update_issue` can write the raw
-State field without invoking a state-machine event. Agent-driven state changes should
-therefore use the REST command/event path until this is guarded or corrected upstream.
+At acceptance, one material product limitation was found: native MCP `update_issue`
+could write the raw State field without invoking a state-machine event. The follow-up
+reproduced that baseline and then attached a native on-change guard. With the guard
+active, native MCP rejects `TO DO -> DONE` transactionally and still allows
+`TO DO -> IN PROGRESS`. REST clients should continue to use the command/event path;
+direct REST assignment to the state-machine field returns HTTP 200 without mutating it.
 
 ### Representative issue and Knowledge Base work
 
@@ -156,15 +165,17 @@ better. These scores apply only to the tested local trial.
 
 | Measure | Score | Evidence and principal weakness | Confidence |
 | --- | ---: | --- | --- |
-| Complexity | 2/10 | One pinned container, four bind mounts, native MCP/REST, and no extra platform. State changes currently need the REST event path. | High |
-| Maintainability | 8/10 | Ordinary Compose and filesystem backup paths with concise Git documentation. Upgrade maintenance was not tested. | Medium |
+| Complexity | 3/10 | One pinned container, four bind mounts, native MCP/REST, and one small native guard workflow; no extra service or framework. | High |
+| Maintainability | 8/10 | Ordinary Compose, filesystem backup paths, and Git-controlled workflow/article sources. Upgrade maintenance was not tested. | Medium |
 | Supportability | 8/10 | Product logs, REST read-back, supported backups, and clean recovery were usable. No monitoring or backup-failure notification exists. | Medium |
 | Usability | 9/10 | Human review and complete agent journeys passed with low observed latency. Article ordering required the product's dedicated ordering operation. | High |
-| Security | 7/10 | Restricted identity and administrative denial were proved, and secrets stay outside Git. HTTP is unencrypted and raw MCP state writes can bypass workflow events. | Medium |
+| Security | 8/10 | Restricted identity, administrative denial, and transactional enforcement for event and MCP State changes were proved. HTTP remains limited to the accepted trusted network. | High |
 
 ## Final decision
 
 The trial is successful. The smallest sensible next operational step, if this becomes a
-retained service, is to schedule supported YouTrack backups and copy them to separately
-protected storage. TLS is not required for the accepted local scope, but should be added
-if the service crosses that trust boundary.
+retained service, is to follow
+[retained-deployment-handoff.md](retained-deployment-handoff.md): schedule supported
+backups, copy them to separately protected storage, configure failure notification,
+and reproduce the workflow/readiness controls. TLS is not required for the accepted
+local scope, but should be added if the service crosses that trust boundary.
