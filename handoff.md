@@ -1,6 +1,6 @@
 # YouTrack trial handoff
 
-**Status:** Core trial configured and tested; human review and Codex client reload pending
+**Status:** Bounded trial complete; MCP state-update limitation recorded
 **Updated:** 2026-09-17 for `/home/ai/Development/devtools-trial`
 
 ## Purpose
@@ -91,9 +91,8 @@ network, and client-compatibility failures should be distinguished before adding
 components.
 
 The active Codex profile contains the restricted YouTrack MCP declaration and reads
-its token from `YOUTRACK_AGENT_TOKEN`. Start a fresh Codex CLI session with that
-variable exported from the ignored `creds.env`; the current session cannot reload its
-tool inventory after startup.
+its token from `YOUTRACK_AGENT_TOKEN`. A restarted Codex CLI session loaded the
+allowlisted tools and authenticated successfully as `trial-agent`.
 
 ## Documentation authority
 
@@ -140,9 +139,10 @@ Verified on 2026-09-17:
 
 - The scoped `trial-agent` can read `TRIAL` and receives `403 Forbidden` from the
   database-backup administration endpoint.
-- Native MCP discovery returns only the 15 allowed issue, article, project, and
-  identity tools. MCP created and updated `TRIAL-1`, and added and retrieved its
-  comment. MCP created and updated `TRIAL-A-1`.
+- The actual Codex client loaded only the 15 allowed issue, article, project, and
+  identity tools and authenticated as `trial-agent`. It read `TRIAL-1` and
+  `TRIAL-A-1` directly through MCP. MCP had already created and updated both items and
+  added and retrieved the issue comment.
 - The visual state-machine workflow is active. All seven allowed edges worked through
   its event interface; `TO DO -> DONE` returned `400` and kept `TO DO`.
 - Important limitation: native MCP `update_issue` can set the raw `State` value
@@ -150,12 +150,14 @@ Verified on 2026-09-17:
   until this is guarded or fixed upstream.
 - The Git-derived article renders its attached screenshot and Mermaid diagram and
   records source commit `3714787bafc562b72e55bbbbc2fb87f78f1014fe`.
+- Human review from the Mac found the issue and Knowledge Base article, including the
+  diagram, readable and suitable for the trial.
 - `TRIAL-1` and `TRIAL-A-1` survived a forced container recreation.
 - Supported backup `2026-09-17-13-37-39.tar.gz` exists in the mounted backup directory
   and is reported by YouTrack without an error.
 
-Still to check: a human browser review from the Mac, and MCP discovery/use from a new
-Codex CLI session after exporting `YOUTRACK_AGENT_TOKEN`.
+No required journey remains unrun. The comparison with Jira/Rovo is a participant
+judgement rather than a synthetic benchmark.
 
 ## Evidence of success
 
