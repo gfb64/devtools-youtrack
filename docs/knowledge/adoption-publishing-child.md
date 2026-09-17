@@ -1,8 +1,8 @@
 # Adoption publishing child fixture
 
 This child page is linked to its [parent article]({{PARENT_ARTICLE_URL}}) and
-keeps the same Git-authoritative model. This sentence deliberately contains a
-publshing typo for the correction/update test.
+keeps the same Git-authoritative publishing model. This correction was made in
+Git first and then republished to the existing YouTrack article.
 
 ```mermaid
 stateDiagram-v2
@@ -20,4 +20,3 @@ The separately attached diagram source is `trial-flow.mmd`.
 - Repository: `git@github.com:gfb64/devtools-youtrack.git`
 - Path: `docs/knowledge/adoption-publishing-child.md`
 - Commit: `{{SOURCE_COMMIT}}`
-
