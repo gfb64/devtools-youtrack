@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json.schemastore.org/youtrack-app.json",
+  "name": "trial-adoption-readiness",
+  "title": "Trial adoption readiness",
+  "description": "Trial-only state transition enforcement and readiness reset.",
+  "version": "1.0.0"
+}

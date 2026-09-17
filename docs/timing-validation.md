@@ -71,7 +71,8 @@ parallel and are useful integrity evidence, not comparative performance data.
 
 The exercised flow needs no custom integration service. Native MCP covers the normal
 issue and Knowledge Base work, REST covers file upload and workflow-event transitions,
-and the built-in article tree covers ordering. Keep the state-transition limitation in
-mind: raw MCP state updates bypass the visual state-machine events, so agent-driven
-state changes should continue to use the event command path unless YouTrack closes that
-gap.
+and the built-in article tree covers ordering. At the time of this timing run, raw MCP
+State updates bypassed visual state-machine events, so agent-driven changes needed the
+event command path. The later adoption-readiness follow-up reproduced and then closed
+that bypass with a small native on-change guard; see
+[adoption-readiness-results.md](adoption-readiness-results.md).

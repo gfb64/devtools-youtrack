@@ -1,6 +1,6 @@
 # YouTrack trial handoff
 
-**Status:** Trial accepted; timing and clean backup restore validation complete
+**Status:** Trial accepted; adoption-readiness follow-up complete
 **Updated:** 2026-09-17 for `/home/ai/Development/devtools-trial`
 
 ## Purpose
@@ -23,14 +23,14 @@ Verified on 2026-09-17:
 | Item | Observation |
 | --- | --- |
 | Workspace | `/home/ai/Development/devtools-trial` on ext4 |
-| Git | Repository on `trial/youtrack-evaluation`; no remote |
+| Git | GitHub repository `gfb64/devtools-youtrack`; follow-up on `trial/adoption-readiness` |
 | Workstation VM | Ubuntu 26.04.1 LTS, x86_64, at `10.37.129.10` in Parallels |
 | Docker client | 29.8.1 with Compose 5.5.1 |
 | Docker target | `helix-runtime` over SSH: Ubuntu 24.04.4 LTS, x86_64, at `10.37.129.20` |
 | Docker server | 29.6.2 |
 | Runtime port 8080 | YouTrack published on `10.37.129.20:8080` |
 | Trial hostname | `dev-tools.helix-onprem.net`; hosts entries configured on the Mac and workstation VM |
-| YouTrack | `2026.2.18991`; project `TRIAL`; issues `TRIAL-1` to `TRIAL-3`; articles `TRIAL-A-1` to `TRIAL-A-3` |
+| YouTrack | `2026.2.18991`; project `TRIAL`; accepted fixtures retained alongside isolated adoption-readiness fixtures |
 
 The `.10` workstation runs the development tools; Compose commands use the remote
 Docker engine on the `.20` runtime VM. Docker-published ports therefore belong to
@@ -84,8 +84,10 @@ IN REVIEW   -> TO DO | IN PROGRESS | DONE
 DONE        -> TO DO
 ```
 
-Use YouTrack's visual Workflow Constructor if it expresses this cleanly. Prove at
-least one denied transition, preferably `TO DO -> DONE`.
+The visual State workflow defines the graph. The project-scoped
+`Trial adoption readiness` on-change workflow also validates every raw State change,
+so native MCP cannot bypass it. Prove at least one denied transition, preferably
+`TO DO -> DONE`, after workflow or product upgrades.
 
 For agent access, use a disposable permanent token belonging to a minimally
 privileged, non-admin user. Prove a small authenticated REST read first, then use the
@@ -101,7 +103,8 @@ allowlisted tools and authenticated successfully as `trial-agent`.
 
 Git-controlled Markdown, screenshots, and diagram sources are authoritative.
 YouTrack articles are derived copies for human reading and review. Apply corrections
-to Git first, then update YouTrack. Do not build a publisher for this trial.
+to Git first, then update the same article ID. Compare the live article body with the
+last-published SHA-256 before overwrite and report divergence. No publisher was built.
 
 A sufficient fixture is:
 
@@ -148,9 +151,13 @@ Verified on 2026-09-17:
   added and retrieved the issue comment.
 - The visual state-machine workflow is active. All seven allowed edges worked through
   its event interface; `TO DO -> DONE` returned `400` and kept `TO DO`.
-- Important limitation: native MCP `update_issue` can set the raw `State` value
-  without using a state-machine event. Do not treat MCP state changes as enforced
-  until this is guarded or fixed upstream.
+- The follow-up reproduced the original native MCP raw-State bypass on `TRIAL-6`.
+  A small native on-change workflow now rejects prohibited raw changes transactionally;
+  native MCP denied `TO DO -> DONE` on `TRIAL-10` while allowing
+  `TO DO -> IN PROGRESS`. Direct REST State assignment is a `200` no-op and is not a
+  supported mutation path.
+- `Agent Readiness` (`Pending Review` or `Approved`) is readable and writable through
+  REST and native MCP. Reopening `DONE -> TO DO` resets it to `Pending Review`.
 - The Git-derived article renders its attached screenshot and Mermaid diagram and
   records source commit `3714787bafc562b72e55bbbbc2fb87f78f1014fe`.
 - Human review from the Mac found the issue and Knowledge Base article, including the
@@ -170,6 +177,11 @@ Verified on 2026-09-17:
   child article, and reordered the article tree. All final state and relationships were
   read back successfully. The 21 requested action timings totalled 1,629.7 ms in
   this single local run; see [`docs/timing-validation.md`](docs/timing-validation.md).
+- The Git-authoritative parent/child documentation fixture was updated in place after
+  a Git-first correction. A simulated human edit was detected by a body-hash mismatch
+  before overwrite; REST and MCP independently confirmed final content, hierarchy,
+  screenshot, and diagram attachment. See
+  [`docs/adoption-readiness-results.md`](docs/adoption-readiness-results.md).
 
 No required journey remains unrun. The comparison with Jira/Rovo is a participant
 judgement rather than a synthetic benchmark.
@@ -199,7 +211,7 @@ passed.
 
 ## Deliberately deferred
 
-Unless evidence from the trial requires one, do not add a reverse proxy, TLS
+Unless a separately authorised retained deployment requires one, do not add a reverse proxy, TLS
 automation, Kubernetes, an external database, SSO/OAuth, monitoring infrastructure,
 multiple agent identities, Jira import, Confluence publication, a custom MCP server,
 or a documentation publishing framework.
@@ -217,6 +229,9 @@ or a documentation publishing framework.
   than treating a running container as success.
 
 ## References
+
+- [Adoption-readiness follow-up](docs/adoption-readiness-results.md)
+- [Retained-deployment handoff](docs/retained-deployment-handoff.md)
 
 - [YouTrack Docker installation](https://www.jetbrains.com/help/youtrack/server/youtrack-docker-installation.html)
 - [YouTrack MCP server](https://www.jetbrains.com/help/youtrack/server/model-context-protocol-server.html)
