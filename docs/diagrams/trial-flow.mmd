@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> TO_DO
+    TO_DO --> IN_PROGRESS
+    IN_PROGRESS --> TO_DO
+    IN_PROGRESS --> IN_REVIEW
+    IN_REVIEW --> TO_DO
+    IN_REVIEW --> IN_PROGRESS
+    IN_REVIEW --> DONE
+    DONE --> TO_DO
