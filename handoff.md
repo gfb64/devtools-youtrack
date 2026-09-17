@@ -1,6 +1,6 @@
 # YouTrack trial handoff
 
-**Status:** Bounded trial complete; MCP state-update limitation recorded
+**Status:** Bounded trial and final timing validation complete
 **Updated:** 2026-09-17 for `/home/ai/Development/devtools-trial`
 
 ## Purpose
@@ -27,7 +27,7 @@ Verified on 2026-09-17:
 | Docker server | 29.6.2 |
 | Runtime port 8080 | YouTrack published on `10.37.129.20:8080` |
 | Trial hostname | `dev-tools.helix-onprem.net`; hosts entries configured on the Mac and workstation VM |
-| YouTrack | `2026.2.18991`; project `TRIAL`; issue `TRIAL-1`; article `TRIAL-A-1` |
+| YouTrack | `2026.2.18991`; project `TRIAL`; issues `TRIAL-1` to `TRIAL-3`; articles `TRIAL-A-1` to `TRIAL-A-3` |
 
 The `.10` workstation runs the development tools; Compose commands use the remote
 Docker engine on the `.20` runtime VM. Docker-published ports therefore belong to
@@ -155,6 +155,11 @@ Verified on 2026-09-17:
 - `TRIAL-1` and `TRIAL-A-1` survived a forced container recreation.
 - Supported backup `2026-09-17-13-37-39.tar.gz` exists in the mounted backup directory
   and is reported by YouTrack without an error.
+- The final timing journey created a linked parent/child issue pair, exercised the
+  requested workflow and comments, read and created Knowledge Base articles, created a
+  child article, and reordered the article tree. All final state and relationships were
+  read back successfully. The 21 requested action timings totalled 1,629.7 ms in
+  this single local run; see [`docs/timing-validation.md`](docs/timing-validation.md).
 
 No required journey remains unrun. The comparison with Jira/Rovo is a participant
 judgement rather than a synthetic benchmark.
