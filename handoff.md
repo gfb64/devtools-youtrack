@@ -1,6 +1,6 @@
 # YouTrack trial handoff
 
-**Status:** Bounded trial and final timing validation complete
+**Status:** Trial accepted; timing and clean backup restore validation complete
 **Updated:** 2026-09-17 for `/home/ai/Development/devtools-trial`
 
 ## Purpose
@@ -43,8 +43,8 @@ deployment.
   policy `unless-stopped`.
 - One trial project, one human administrator, and one restricted agent identity.
 - One representative issue and one small Git-controlled documentation fixture.
-- HTTP is acceptable for this bounded trial if it stays on a trusted local, office,
-  or VPN path. Add TLS only if the client requires it or the trial is retained.
+- The trial owner accepted HTTP with no TLS requirement for this trusted local scope.
+  Reassess TLS only if the network exposure or client requirements change.
 
 For this trial, add the following entry to `/etc/hosts` on both the Mac and workstation
 VM:
@@ -153,8 +153,15 @@ Verified on 2026-09-17:
 - Human review from the Mac found the issue and Knowledge Base article, including the
   diagram, readable and suitable for the trial.
 - `TRIAL-1` and `TRIAL-A-1` survived a forced container recreation.
-- Supported backup `2026-09-17-13-37-39.tar.gz` exists in the mounted backup directory
-  and is reported by YouTrack without an error.
+- The built-in backup utility works with the free license. It produced fresh archive
+  `2026-09-17-15-03-36.tar.gz` (7,218,770 bytes), which passed an archive integrity
+  check and remains in the mounted backup directory.
+- That archive was restored with the same pinned image into clean, isolated data and
+  configuration directories on temporary port 8081. All six trial issues/articles
+  matched the original content exactly, all five attachments were byte-for-byte
+  identical, both restored identities authenticated, and the workflow still allowed
+  `TO DO -> IN PROGRESS -> TO DO` while denying `TO DO -> DONE`. The temporary restore
+  container and directories were then removed; the original instance remained healthy.
 - The final timing journey created a linked parent/child issue pair, exercised the
   requested workflow and comments, read and created Knowledge Base articles, created a
   child article, and reordered the article tree. All final state and relationships were
@@ -178,7 +185,8 @@ The trial should demonstrate:
 - A human can comfortably read an article containing text, a screenshot, and a
   diagram, while the Git source remains unchanged by publication.
 - Project and Knowledge Base data survive non-destructive container recreation.
-- A supported backup artifact exists.
+- A supported backup artifact has been restored into clean directories and its data,
+  attachments, identities, hierarchy, ordering, and workflow have been verified.
 - The participants can make an evidence-based judgment about speed, cost, and
   ambiguity compared with Jira/Rovo; invented timing precision is unnecessary.
 
