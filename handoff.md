@@ -1,6 +1,6 @@
 # YouTrack trial handoff
 
-**Status:** Ready to implement
+**Status:** YouTrack container running; browser setup pending
 **Updated:** 2026-09-17 for `/home/ai/Development/devtools-trial`
 
 ## Purpose
@@ -25,7 +25,7 @@ Verified on 2026-09-17:
 | Docker client | 29.8.1 with Compose 5.5.1 |
 | Docker target | `helix-runtime` over SSH: Ubuntu 24.04.4 LTS, x86_64, at `10.37.129.20` |
 | Docker server | 29.6.2 |
-| Runtime port 8080 | Not yet checked |
+| Runtime port 8080 | YouTrack published on `10.37.129.20:8080` |
 | Trial hostname | `dev-tools.helix-onprem.net`; hosts entries configured on the Mac and workstation VM |
 
 The `.10` workstation runs the development tools; Compose commands use the remote
@@ -35,7 +35,7 @@ deployment.
 
 ## Smallest useful trial
 
-- One Docker Compose service using a pinned, current YouTrack Server image.
+- One Docker Compose service using pinned image `jetbrains/youtrack:2026.2.18991`.
 - Persistent mounts for `/opt/youtrack/data`, `/opt/youtrack/conf`,
   `/opt/youtrack/logs`, and `/opt/youtrack/backups`.
 - Publish port 8080 on the runtime VM's `10.37.129.20` interface and use restart

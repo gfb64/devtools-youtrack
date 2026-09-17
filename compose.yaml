@@ -1,0 +1,13 @@
+name: youtrack-trial
+
+services:
+  youtrack:
+    image: jetbrains/youtrack:2026.2.18991
+    restart: unless-stopped
+    ports:
+      - "10.37.129.20:8080:8080"
+    volumes:
+      - /srv/youtrack-trial/data:/opt/youtrack/data
+      - /srv/youtrack-trial/conf:/opt/youtrack/conf
+      - /srv/youtrack-trial/logs:/opt/youtrack/logs
+      - /srv/youtrack-trial/backups:/opt/youtrack/backups
