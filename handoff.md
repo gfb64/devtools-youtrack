@@ -13,6 +13,9 @@ Knowledge Base.
 This is an evaluation, not a production rollout. Prefer learning quickly over
 perfecting infrastructure.
 
+The accepted outcome, evidence, timings, recovery proof, limitations, and deliberately
+unrun work are consolidated in [`docs/trial-results.md`](docs/trial-results.md).
+
 ## Current environment
 
 Verified on 2026-09-17:
