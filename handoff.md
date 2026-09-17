@@ -1,6 +1,6 @@
 # YouTrack trial handoff
 
-**Status:** YouTrack container running; browser setup pending
+**Status:** Core trial configured and tested; human review and Codex client reload pending
 **Updated:** 2026-09-17 for `/home/ai/Development/devtools-trial`
 
 ## Purpose
@@ -27,6 +27,7 @@ Verified on 2026-09-17:
 | Docker server | 29.6.2 |
 | Runtime port 8080 | YouTrack published on `10.37.129.20:8080` |
 | Trial hostname | `dev-tools.helix-onprem.net`; hosts entries configured on the Mac and workstation VM |
+| YouTrack | `2026.2.18991`; project `TRIAL`; issue `TRIAL-1`; article `TRIAL-A-1` |
 
 The `.10` workstation runs the development tools; Compose commands use the remote
 Docker engine on the `.20` runtime VM. Docker-published ports therefore belong to
@@ -89,6 +90,11 @@ native `/mcp` endpoint from the actual target client. Authentication, authorizat
 network, and client-compatibility failures should be distinguished before adding
 components.
 
+The active Codex profile contains the restricted YouTrack MCP declaration and reads
+its token from `YOUTRACK_AGENT_TOKEN`. Start a fresh Codex CLI session with that
+variable exported from the ignored `creds.env`; the current session cannot reload its
+tool inventory after startup.
+
 ## Documentation authority
 
 Git-controlled Markdown, screenshots, and diagram sources are authoritative.
@@ -127,6 +133,29 @@ The sequence may adapt to what the environment reveals:
 
 Stop when the trial question has enough evidence. A blocked optional network or DNS
 step should not invalidate useful local findings; record the limitation plainly.
+
+## Current evidence
+
+Verified on 2026-09-17:
+
+- The scoped `trial-agent` can read `TRIAL` and receives `403 Forbidden` from the
+  database-backup administration endpoint.
+- Native MCP discovery returns only the 15 allowed issue, article, project, and
+  identity tools. MCP created and updated `TRIAL-1`, and added and retrieved its
+  comment. MCP created and updated `TRIAL-A-1`.
+- The visual state-machine workflow is active. All seven allowed edges worked through
+  its event interface; `TO DO -> DONE` returned `400` and kept `TO DO`.
+- Important limitation: native MCP `update_issue` can set the raw `State` value
+  without using a state-machine event. Do not treat MCP state changes as enforced
+  until this is guarded or fixed upstream.
+- The Git-derived article renders its attached screenshot and Mermaid diagram and
+  records source commit `3714787bafc562b72e55bbbbc2fb87f78f1014fe`.
+- `TRIAL-1` and `TRIAL-A-1` survived a forced container recreation.
+- Supported backup `2026-09-17-13-37-39.tar.gz` exists in the mounted backup directory
+  and is reported by YouTrack without an error.
+
+Still to check: a human browser review from the Mac, and MCP discovery/use from a new
+Codex CLI session after exporting `YOUTRACK_AGENT_TOKEN`.
 
 ## Evidence of success
 
