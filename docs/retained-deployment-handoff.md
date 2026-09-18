@@ -1,7 +1,23 @@
 # Retained YouTrack deployment handoff
 
-**Purpose:** Minimal configuration for a future, separately authorised retained
-deployment. This is a handoff, not a deployment record.
+**Purpose:** Minimal configuration and current status for the authorised retained
+deployment.
+
+## Implementation status
+
+Verified on 2026-09-18:
+
+| Item | Retained environment |
+| --- | --- |
+| Host | Proxmox VM `devtools`, Ubuntu 24.04, 4 vCPU, 8 GiB RAM, 64 GB disk |
+| Network | Static/reserved `192.168.14.136`; public DNS A record `dev-tools.helix-onprem.net` resolves to that private address |
+| Container runtime | Docker Engine 29.8.1 and Compose 5.5.1 from Docker's official Ubuntu repository |
+| Deployment | [`deploy/retained`](../deploy/retained): pinned YouTrack plus pinned Caddy with Route53 DNS-01 |
+| Host preparation | Patched and rebooted; Docker verified; persistent directories created; Caddy image built and configuration validated |
+| Not started | YouTrack, certificate issuance, and the configuration wizard |
+
+The remaining start blockers are a dedicated root-only Route53 credential and the
+human decision to start empty or restore the accepted trial backup.
 
 ## Known-good baseline
 
@@ -109,21 +125,27 @@ this follow-up.
 
 ## Network and TLS
 
-The local trial accepted
-`http://dev-tools.helix-onprem.net:8080` with hosts entries because all clients were on
-the trusted Mac/Parallels network. That decision does not automatically carry to a
-different retained boundary.
+Use `https://dev-tools.helix-onprem.net` through Caddy. Only ports 80 and 443 are
+published; YouTrack port 8080 stays on the Compose network. Caddy obtains a dedicated
+Let's Encrypt certificate with the same Route53 DNS-01 pattern observed in the
+Kubernetes cluster. Its Route53 module and Caddy version are pinned and built from the
+documented Docker builder image.
 
-**Human decisions required:** retained hostname, runtime IP/port, DNS/hosts ownership,
-client networks, and whether any untrusted or routed network crosses the path. Keep
-plain HTTP only if the retained scope is equivalently trusted and the owner explicitly
-accepts bearer-token transport over it. Otherwise place supported TLS termination in
-front and configure the YouTrack base URL accordingly.
+The AWS identity is restricted to listing records and changing only TXT record
+`_acme-challenge.dev-tools.helix-onprem.net` in hosted zone
+`Z0684996186NCRQKGH7CM`. Store its access key in the root-only file documented under
+[`deploy/retained`](../deploy/retained). Caddy creates and removes challenge values;
+do not add a permanent TXT record.
 
-## Before authorising deployment
+The A record deliberately publishes a private RFC1918 address, so clients still need
+routing to the internal network. Remove stale hosts-file overrides for the former
+trial address before browser acceptance.
 
-- Supply the decisions above and the retained host/storage paths.
+## Before starting the application
+
 - Confirm whether the retained service starts empty or from an authorised backup.
+- Install the dedicated Route53 credential without copying or reusing the Kubernetes
+  credential.
 - Confirm project names, human admins, restricted identities, and notification users.
 - Review the workflow code and publish sources through the normal PR workflow.
 - Plan one post-deployment acceptance run; do not repeat the whole exploratory trial.
