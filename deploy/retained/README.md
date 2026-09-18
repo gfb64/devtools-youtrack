@@ -59,6 +59,33 @@ Complete the YouTrack configuration wizard at that HTTPS URL and set its base UR
 workflow, readiness field, backup and notification settings from
 `docs/retained-deployment-handoff.md`.
 
+## Create a project
+
+The retained instance has one custom project template, `HELIXTPL`. It carries the
+standard State values and transitions, the raw State mutation guard, and the Agent
+Readiness field/reset rule. Install the small bootstrap script on the host with:
+
+```bash
+sudo install -o root -g root -m 0755 bootstrap-project.py \
+  /usr/local/sbin/youtrack-bootstrap-project
+```
+
+Run it interactively:
+
+```bash
+sudo /usr/local/sbin/youtrack-bootstrap-project
+```
+
+It asks for a project name, key, optional description, and confirmation. It creates
+the project through YouTrack's supported REST API using `HELIXTPL`, then verifies the
+State and Agent Readiness values and defaults. While the temporary administrator
+bootstrap token exists, the script reads its root-only file. After that token is
+removed, it securely prompts for a permanent token belonging to a user with the
+Project Creator role. The token owner becomes the new project's owner.
+
+The template is the configuration source of truth. Changes to it affect only projects
+created afterwards; update existing projects separately when a workflow changes.
+
 ## Routine operations
 
 ```bash

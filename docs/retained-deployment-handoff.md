@@ -18,7 +18,8 @@ Verified on 2026-09-18:
 | TLS | Dedicated Let's Encrypt certificate issued successfully with Route53 DNS-01; HTTP redirects to HTTPS |
 | YouTrack setup | Wizard complete; stored base URL verified as `https://dev-tools.helix-onprem.net`; host port 8080 is not published |
 | Persistence check | Controlled Compose restart recovered HTTPS and authenticated API access after normal application startup |
-| Pending | Retained project/identities/workflow and backup/notification decisions |
+| Project bootstrap | `HELIXTPL` template and `/usr/local/sbin/youtrack-bootstrap-project` installed and validated |
+| Pending | Real projects, restricted identities, and backup/notification decisions |
 
 The dedicated Route53 credential and temporary administrator bootstrap token are
 installed root-only on the host. Their values are not recorded in Git. Revoke and
@@ -37,7 +38,27 @@ entry must also be updated or removed for browser access.
 | Database | Use YouTrack's bundled database on local durable storage; do not put its live data directory on NFS |
 | State | `TO DO`, `IN PROGRESS`, `IN REVIEW`, `DONE` with the seven transitions recorded in the trial |
 | Readiness | Public single-value enum `Agent Readiness`: `Pending Review`, `Approved`; default `Pending Review` |
-| Enforcement | Import and attach [`workflows/adoption-readiness`](../workflows/adoption-readiness) to each intended project |
+| Enforcement | `HELIXTPL` carries the source-controlled [`workflows/adoption-readiness`](../workflows/adoption-readiness); create projects with the retained bootstrap script |
+
+The template contains the State field and bundle, public single-value Agent Readiness
+field, native state machine, raw-mutation guard, and reopen reset. The workflow package
+was uploaded with the official `@jetbrains/youtrack-apps-tools` 1.0.3 utility and is
+active without requirement errors. Do not attach a second state machine to projects
+created from this template.
+
+The source-controlled script is
+[`deploy/retained/bootstrap-project.py`](../deploy/retained/bootstrap-project.py). Run
+`sudo /usr/local/sbin/youtrack-bootstrap-project` on the retained VM. It deliberately
+prompts for only the name, key, optional description, and confirmation; team membership
+and access remain explicit project-owner decisions.
+
+Validation on 2026-09-18 used a disposable `BOOTTEST` project. Template inheritance
+was active without requirement errors. `BOOTTEST-1` began in `TO DO` with readiness
+`Pending Review`; prohibited `TO DO -> DONE` returned HTTP 400 and stored `TO DO`;
+the allowed path reached `DONE`; and `DONE -> TO DO` reset `Approved` to
+`Pending Review`. The disposable project was then deleted and is not recoverable from
+the live instance. These are recorded live observations, not an automated regression
+suite.
 
 The image and storage model follow YouTrack's supported
 [Docker installation](https://www.jetbrains.com/help/youtrack/server/youtrack-docker-installation.html).

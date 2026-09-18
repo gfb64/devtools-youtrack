@@ -12,7 +12,7 @@ const allowedTransitions = new Set([
 ]);
 
 exports.rule = entities.Issue.onChange({
-  title: 'Enforce trial state transitions',
+  title: 'Enforce standard state transitions',
   guard: (ctx) => ctx.issue.isReported &&
     !ctx.issue.becomesReported &&
     ctx.issue.fields.isChanged(ctx.State),
