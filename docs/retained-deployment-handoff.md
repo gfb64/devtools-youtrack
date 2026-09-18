@@ -1,7 +1,31 @@
 # Retained YouTrack deployment handoff
 
-**Purpose:** Minimal configuration for a future, separately authorised retained
-deployment. This is a handoff, not a deployment record.
+**Purpose:** Minimal configuration and current status for the authorised retained
+deployment.
+
+## Implementation status
+
+Verified on 2026-09-18:
+
+| Item | Retained environment |
+| --- | --- |
+| Host | Proxmox VM `devtools`, Ubuntu 24.04, 4 vCPU, 8 GiB RAM, 64 GB disk |
+| Network | Static/reserved `192.168.14.136`; public DNS A record `dev-tools.helix-onprem.net` resolves to that private address |
+| Container runtime | Docker Engine 29.8.1 and Compose 5.5.1 from Docker's official Ubuntu repository |
+| Deployment | [`deploy/retained`](../deploy/retained): pinned YouTrack plus pinned Caddy with Route53 DNS-01 |
+| Host preparation | Patched and rebooted; Docker verified; persistent directories created; Caddy image built and configuration validated |
+| Service | Fresh YouTrack and Caddy containers running; no trial data restored |
+| TLS | Dedicated Let's Encrypt certificate issued successfully with Route53 DNS-01; HTTP redirects to HTTPS |
+| YouTrack setup | Wizard complete; stored base URL verified as `https://dev-tools.helix-onprem.net`; host port 8080 is not published |
+| Persistence check | Controlled Compose restart recovered HTTPS and authenticated API access after normal application startup |
+| Project bootstrap | `HELIXTPL` template and `/usr/local/sbin/youtrack-bootstrap-project` installed and validated |
+| Pending | Real projects, restricted identities, and backup/notification decisions |
+
+The dedicated Route53 credential and temporary administrator bootstrap token are
+installed root-only on the host. Their values are not recorded in Git. Revoke and
+remove the bootstrap token after retained identities and configuration are verified.
+The Ubuntu workstation hosts entry points at the retained VM; the Mac's former trial
+entry must also be updated or removed for browser access.
 
 ## Known-good baseline
 
@@ -14,7 +38,27 @@ deployment. This is a handoff, not a deployment record.
 | Database | Use YouTrack's bundled database on local durable storage; do not put its live data directory on NFS |
 | State | `TO DO`, `IN PROGRESS`, `IN REVIEW`, `DONE` with the seven transitions recorded in the trial |
 | Readiness | Public single-value enum `Agent Readiness`: `Pending Review`, `Approved`; default `Pending Review` |
-| Enforcement | Import and attach [`workflows/adoption-readiness`](../workflows/adoption-readiness) to each intended project |
+| Enforcement | `HELIXTPL` carries the source-controlled [`workflows/adoption-readiness`](../workflows/adoption-readiness); create projects with the retained bootstrap script |
+
+The template contains the State field and bundle, public single-value Agent Readiness
+field, native state machine, raw-mutation guard, and reopen reset. The workflow package
+was uploaded with the official `@jetbrains/youtrack-apps-tools` 1.0.3 utility and is
+active without requirement errors. Do not attach a second state machine to projects
+created from this template.
+
+The source-controlled script is
+[`deploy/retained/bootstrap-project.py`](../deploy/retained/bootstrap-project.py). Run
+`sudo /usr/local/sbin/youtrack-bootstrap-project` on the retained VM. It deliberately
+prompts for only the name, key, optional description, and confirmation; team membership
+and access remain explicit project-owner decisions.
+
+Validation on 2026-09-18 used a disposable `BOOTTEST` project. Template inheritance
+was active without requirement errors. `BOOTTEST-1` began in `TO DO` with readiness
+`Pending Review`; prohibited `TO DO -> DONE` returned HTTP 400 and stored `TO DO`;
+the allowed path reached `DONE`; and `DONE -> TO DO` reset `Approved` to
+`Pending Review`. The disposable project was then deleted and is not recoverable from
+the live instance. These are recorded live observations, not an automated regression
+suite.
 
 The image and storage model follow YouTrack's supported
 [Docker installation](https://www.jetbrains.com/help/youtrack/server/youtrack-docker-installation.html).
@@ -109,21 +153,24 @@ this follow-up.
 
 ## Network and TLS
 
-The local trial accepted
-`http://dev-tools.helix-onprem.net:8080` with hosts entries because all clients were on
-the trusted Mac/Parallels network. That decision does not automatically carry to a
-different retained boundary.
+Use `https://dev-tools.helix-onprem.net` through Caddy. Only ports 80 and 443 are
+published; YouTrack port 8080 stays on the Compose network. Caddy obtains a dedicated
+Let's Encrypt certificate with the same Route53 DNS-01 pattern observed in the
+Kubernetes cluster. Its Route53 module and Caddy version are pinned and built from the
+documented Docker builder image.
 
-**Human decisions required:** retained hostname, runtime IP/port, DNS/hosts ownership,
-client networks, and whether any untrusted or routed network crosses the path. Keep
-plain HTTP only if the retained scope is equivalently trusted and the owner explicitly
-accepts bearer-token transport over it. Otherwise place supported TLS termination in
-front and configure the YouTrack base URL accordingly.
+The AWS identity is restricted to listing records and changing only TXT record
+`_acme-challenge.dev-tools.helix-onprem.net` in hosted zone
+`Z0684996186NCRQKGH7CM`. Store its access key in the root-only file documented under
+[`deploy/retained`](../deploy/retained). Caddy creates and removes challenge values;
+do not add a permanent TXT record.
 
-## Before authorising deployment
+The A record deliberately publishes a private RFC1918 address, so clients still need
+routing to the internal network. Remove stale hosts-file overrides for the former
+trial address before browser acceptance.
 
-- Supply the decisions above and the retained host/storage paths.
-- Confirm whether the retained service starts empty or from an authorised backup.
+## Next configuration actions
+
 - Confirm project names, human admins, restricted identities, and notification users.
 - Review the workflow code and publish sources through the normal PR workflow.
 - Plan one post-deployment acceptance run; do not repeat the whole exploratory trial.

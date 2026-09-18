@@ -1,0 +1,31 @@
+name: devtools-youtrack
+
+services:
+  youtrack:
+    image: jetbrains/youtrack:2026.2.18991
+    restart: unless-stopped
+    expose:
+      - "8080"
+    volumes:
+      - /srv/devtools-youtrack/data:/opt/youtrack/data
+      - /srv/devtools-youtrack/conf:/opt/youtrack/conf
+      - /srv/devtools-youtrack/logs:/opt/youtrack/logs
+      - /srv/devtools-youtrack/backups:/opt/youtrack/backups
+
+  caddy:
+    image: devtools-youtrack-caddy:2.11.4-route53-v1.6.2
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    restart: unless-stopped
+    depends_on:
+      - youtrack
+    env_file:
+      - /etc/devtools-youtrack/route53.env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/devtools-youtrack/caddy-data:/data
+      - /srv/devtools-youtrack/caddy-config:/config
