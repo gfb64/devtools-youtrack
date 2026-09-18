@@ -14,10 +14,13 @@ Verified on 2026-09-18:
 | Container runtime | Docker Engine 29.8.1 and Compose 5.5.1 from Docker's official Ubuntu repository |
 | Deployment | [`deploy/retained`](../deploy/retained): pinned YouTrack plus pinned Caddy with Route53 DNS-01 |
 | Host preparation | Patched and rebooted; Docker verified; persistent directories created; Caddy image built and configuration validated |
-| Not started | YouTrack, certificate issuance, and the configuration wizard |
+| Service | Fresh YouTrack and Caddy containers running with zero restarts; no trial data restored |
+| TLS | Dedicated Let's Encrypt certificate issued successfully with Route53 DNS-01; HTTP redirects to HTTPS |
+| Pending | Configuration wizard, retained project/identities/workflow, and backup/notification decisions |
 
-The remaining start blockers are a dedicated root-only Route53 credential and the
-human decision to start empty or restore the accepted trial backup.
+The dedicated Route53 credential is installed root-only on the host. Its values are
+not recorded in Git. The Ubuntu workstation hosts entry points at the retained VM;
+the Mac's former trial entry must also be updated or removed before browser setup.
 
 ## Known-good baseline
 
@@ -141,11 +144,10 @@ The A record deliberately publishes a private RFC1918 address, so clients still 
 routing to the internal network. Remove stale hosts-file overrides for the former
 trial address before browser acceptance.
 
-## Before starting the application
+## Next configuration actions
 
-- Confirm whether the retained service starts empty or from an authorised backup.
-- Install the dedicated Route53 credential without copying or reusing the Kubernetes
-  credential.
+- Complete the configuration wizard as a fresh installation and set the base URL to
+  `https://dev-tools.helix-onprem.net`.
 - Confirm project names, human admins, restricted identities, and notification users.
 - Review the workflow code and publish sources through the normal PR workflow.
 - Plan one post-deployment acceptance run; do not repeat the whole exploratory trial.
