@@ -14,13 +14,17 @@ Verified on 2026-09-18:
 | Container runtime | Docker Engine 29.8.1 and Compose 5.5.1 from Docker's official Ubuntu repository |
 | Deployment | [`deploy/retained`](../deploy/retained): pinned YouTrack plus pinned Caddy with Route53 DNS-01 |
 | Host preparation | Patched and rebooted; Docker verified; persistent directories created; Caddy image built and configuration validated |
-| Service | Fresh YouTrack and Caddy containers running with zero restarts; no trial data restored |
+| Service | Fresh YouTrack and Caddy containers running; no trial data restored |
 | TLS | Dedicated Let's Encrypt certificate issued successfully with Route53 DNS-01; HTTP redirects to HTTPS |
-| Pending | Configuration wizard, retained project/identities/workflow, and backup/notification decisions |
+| YouTrack setup | Wizard complete; stored base URL verified as `https://dev-tools.helix-onprem.net`; host port 8080 is not published |
+| Persistence check | Controlled Compose restart recovered HTTPS and authenticated API access after normal application startup |
+| Pending | Retained project/identities/workflow and backup/notification decisions |
 
-The dedicated Route53 credential is installed root-only on the host. Its values are
-not recorded in Git. The Ubuntu workstation hosts entry points at the retained VM;
-the Mac's former trial entry must also be updated or removed before browser setup.
+The dedicated Route53 credential and temporary administrator bootstrap token are
+installed root-only on the host. Their values are not recorded in Git. Revoke and
+remove the bootstrap token after retained identities and configuration are verified.
+The Ubuntu workstation hosts entry points at the retained VM; the Mac's former trial
+entry must also be updated or removed for browser access.
 
 ## Known-good baseline
 
@@ -146,8 +150,6 @@ trial address before browser acceptance.
 
 ## Next configuration actions
 
-- Complete the configuration wizard as a fresh installation and set the base URL to
-  `https://dev-tools.helix-onprem.net`.
 - Confirm project names, human admins, restricted identities, and notification users.
 - Review the workflow code and publish sources through the normal PR workflow.
 - Plan one post-deployment acceptance run; do not repeat the whole exploratory trial.
