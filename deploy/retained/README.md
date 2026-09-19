@@ -78,13 +78,45 @@ sudo /usr/local/sbin/youtrack-bootstrap-project
 
 It asks for a project name, key, optional description, and confirmation. It creates
 the project through YouTrack's supported REST API using `HELIXTPL`, then verifies the
-State and Agent Readiness values and defaults. While the temporary administrator
+State and Agent Readiness values and defaults. It also configures one `<project name>
+Kanban` board with `TO DO`, `IN PROGRESS`, `IN REVIEW`, `DONE` in that order. All
+project issue types and subtasks appear automatically, with sprints and swimlanes
+disabled. Board access follows project access; the project owner remains unchanged.
+An inherited demo board is repaired in place, preserving the board and existing
+column identities. While the temporary administrator
 bootstrap token exists, the script reads its root-only file. After that token is
 removed, it securely prompts for a permanent token belonging to a user with the
 Project Creator role. The token owner becomes the new project's owner.
 
 The template is the configuration source of truth. Changes to it affect only projects
 created afterwards; update existing projects separately when a workflow changes.
+
+To repair the board of an existing project after installing the updated script:
+
+```bash
+sudo /usr/local/sbin/youtrack-bootstrap-project --repair-board MCPSER
+```
+
+This verifies the existing project fields, then configures its sole board (or creates
+one when absent). It does not recreate the project, edit issues, change workflow
+rules, or delete boards. If multiple/shared boards or custom columns exist, it stops
+for manual selection instead of guessing. After an interrupted run, inspect the
+project and use this repair command; do not attempt to create the project again.
+Every configuration write is followed by a settings readback.
+
+Run the focused local regressions with:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Live repair was verified on MCPSER on 2026-09-19: the existing board `201-2`
+showed all 464 cards in the browser (33 To Do, 2 In Progress, 0 In Review, 429 Done),
+including Feature and Bug cards omitted by the inherited `Type: Task` query. The
+project agent could read the board; all issue update timestamps were unchanged.
+The repair command was rerun against that same board successfully. Fresh board
+creation is covered by mocked REST regression tests, not a new live test project.
+Updating the host-installed utility remains a post-merge installation step.
 
 ## Routine operations
 
